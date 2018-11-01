@@ -5,10 +5,10 @@ from garage.tf.core import LayersPowered
 import garage.tf.core.layers as L
 from garage.tf.core.layers import batch_norm
 from garage.tf.misc import tensor_utils
-from garage.tf.q_functions import QFunction
+from garage.tf.q_functions import NetworkBuilder
 
 
-class ContinuousMLPQFunction(QFunction, LayersPowered, Serializable):
+class ContinuousMLPQFunction(NetworkBuilder, LayersPowered, Serializable):
     """
     This class implements a q value network to predict q based on the input
     state and action. It uses an MLP to fit the function of Q(s, a).
@@ -127,22 +127,3 @@ class ContinuousMLPQFunction(QFunction, LayersPowered, Serializable):
                 self._action_layer: action_var
             }, **kwargs)
             return qvals
-
-    def log_diagnostics(self, paths):
-        pass
-
-    def get_trainable_vars(self, scope=None):
-        scope = scope if scope else self.name
-        return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope)
-
-    def get_global_vars(self, scope=None):
-        scope = scope if scope else self.name
-        return tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=scope)
-
-    def get_regularizable_vars(self, scope=None):
-        scope = scope if scope else self.name
-        reg_vars = [
-            var for var in self.get_trainable_vars(scope=scope)
-            if 'W' in var.name and 'output' not in var.name
-        ]
-        return reg_vars
